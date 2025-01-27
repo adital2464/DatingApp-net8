@@ -13,6 +13,7 @@ public class DataContext(DbContextOptions options) : IdentityDbContext<AppUser, 
     public required DbSet<Message> Messages { get; set; }
     public required DbSet<Group> Groups { get; set; }
     public required DbSet<Connection> Connections { get; set; }
+    public required DbSet<Photo> Photos { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -44,7 +45,7 @@ public class DataContext(DbContextOptions options) : IdentityDbContext<AppUser, 
             .HasOne(s => s.TargeteUser)
             .WithMany(l => l.LikedByUsers)
             .HasForeignKey(s => s.TargetUserId)
-            .OnDelete(DeleteBehavior.Cascade); //on sql-server using NoAction instaed
+            .OnDelete(DeleteBehavior.NoAction); //on sqllite using cascade instaed
 
         builder.Entity<Message>()
             .HasOne(s => s.Recipient)
@@ -55,6 +56,10 @@ public class DataContext(DbContextOptions options) : IdentityDbContext<AppUser, 
             .HasOne(s => s.Sender)
             .WithMany(l => l.MessagesSent)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Entity<Photo>().HasQueryFilter(p => p.IsApproved);
+
+        //builder.ApplyUtcDateTimeConverter();
         
     }
 }
